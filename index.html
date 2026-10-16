@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>رحلة الأنبياء العرب الأربعة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: Cairo, sans-serif;
+      color: #243247;
+      background: linear-gradient(135deg, #eff8ff, #fff7e8 55%, #eaf8f1);
+    }
+    .app {
+      height: 100dvh;
+      max-width: 1500px;
+      margin: auto;
+      padding: clamp(8px, 1.5vh, 18px) clamp(10px, 2vw, 28px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.3vh, 16px);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill, button { font-family: inherit; font-weight: 800; }
+    .pill {
+      background: #fff;
+      border: 1px solid #d4e2ed;
+      border-radius: 999px;
+      padding: 6px 14px;
+      color: #25435b;
+      box-shadow: 0 2px 8px #25435b0d;
+    }
+    .pill b { color: #a16207; }
+    .reset {
+      border: 1px solid #d6e1eb;
+      background: #fff;
+      color: #30506a;
+      border-radius: 12px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    .banner {
+      flex-shrink: 0;
+      text-align: center;
+      padding: clamp(10px, 2vh, 22px);
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid #dce8ef;
+      box-shadow: 0 5px 18px #31516a0c;
+    }
+    .banner h1 {
+      margin: 0 0 6px;
+      color: #175b4c;
+      font-size: clamp(17px, 2.2vw, 30px);
+      line-height: 1.45;
+    }
+    .banner p {
+      margin: 0;
+      color: #506477;
+      font-size: clamp(12px, 1.2vw, 16px);
+      font-weight: 700;
+    }
+    
+    /* هنا: جعل عرض الصناديق يبدأ من اليمين */
+    .boxes {
+      direction: rtl;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(8px, 1.2vw, 16px);
+      flex: 1;
+      min-height: 0;
+    }
+
+    .card {
+      min-width: 0;
+      min-height: 0;
+      background: #fff;
+      border: 2px solid #d9e7ed;
+      border-radius: 20px;
+      padding: clamp(9px, 1.3vw, 18px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      box-shadow: 0 7px 18px #28475a12;
+      transition: .2s;
+      overflow: hidden;
+    }
+    .card:not(.done) { cursor: pointer; }
+    .card:not(.done):hover { border-color: #d6a33b; transform: translateY(-2px); }
+    .card.special { background: #fffaf0; border-color: #e5bd62; }
+    .num {
+      align-self: stretch;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(10px, .95vw, 13px);
+      font-weight: 800;
+      color: #718096;
+    }
+    .icon {
+      width: clamp(42px, 5vw, 64px);
+      height: clamp(42px, 5vw, 64px);
+      border-radius: 18px;
+      background: #e6f5ef;
+      color: #16745c;
+      display: grid;
+      place-items: center;
+      font-size: clamp(20px, 2.5vw, 32px);
+      flex-shrink: 0;
+    }
+    .special .icon { background: #fff0c2; color: #94620a; }
+    .title {
+      font-size: clamp(14px, 1.45vw, 21px);
+      font-weight: 900;
+      line-height: 1.45;
+      color: #174f45;
+      margin: 5px 0;
+    }
+    .desc {
+      font-size: clamp(11px, 1.05vw, 15px);
+      font-weight: 700;
+      color: #586b7b;
+      line-height: 1.6;
+      margin: 3px 0;
+    }
+    .action {
+      background: #16745c;
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: clamp(11px, 1vw, 14px);
+      width: 100%;
+      cursor: pointer;
+    }
+    .special .action { background: #b77912; }
+    .question {
+      font-weight: 900;
+      color: #174f45;
+      font-size: clamp(12px, 1.15vw, 16px);
+      line-height: 1.5;
+      margin: 5px 0;
+    }
+    .answer {
+      font-weight: 900;
+      color: #16745c;
+      background: #e7f7ef;
+      border: 1px solid #b7e4cd;
+      border-radius: 10px;
+      padding: 10px 8px;
+      width: 100%;
+      font-size: clamp(12px, 1.1vw, 15px);
+      line-height: 1.5;
+    }
+    .mini-choices {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      width: 100%;
+      margin-top: 3px;
+    }
+    .mini-choices button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: clamp(9px, .85vw, 12px);
+      line-height: 1.3;
+      padding: 5px 6px;
+      border-radius: 8px;
+      border: 1px solid #d6e3e9;
+      background: #f4f9fb;
+      color: #30475a;
+      cursor: pointer;
+    }
+    .mini-choices button:hover { background: #e4f5ed; border-color: #8dcbb2; }
+    .mini-choices button.correct { background: #d8f3e4; border-color: #58b887; color: #145c3d; }
+    .mini-choices button.wrong { background: #fde8e8; border-color: #e5a0a0; color: #9f2424; }
+    .card .question { margin: 2px 0; font-size: clamp(10px, 1vw, 14px); }
+    .answer-feedback {
+      display: block;
+      width: 100%;
+      margin-top: 5px;
+      padding: 6px 7px;
+      border-radius: 9px;
+      font-weight: 900;
+      font-size: clamp(10px, .9vw, 12px);
+      line-height: 1.4;
+    }
+    .answer-feedback.empty { display: none; }
+    .answer-feedback.good { background: #d8f3e4; color: #145c3d; border: 1px solid #58b887; }
+    .answer-feedback.bad { background: #fde8e8; color: #9f2424; border: 1px solid #e5a0a0; }
+    .retry {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      background: #b77912;
+      color: #fff;
+      padding: 6px 8px;
+      font-size: clamp(10px, .9vw, 12px);
+      cursor: pointer;
+    }
+    
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: #18324666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10;
+    }
+    .modal {
+      width: min(620px, 100%);
+      background: #fff;
+      border: 2px solid #e3bd61;
+      border-radius: 24px;
+      padding: clamp(18px, 3vw, 30px);
+      text-align: center;
+      box-shadow: 0 20px 60px #132a3c30;
+    }
+    .modal h2 { color: #175b4c; font-size: clamp(20px, 3vw, 30px); margin: 8px 0; }
+    .choices { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    .choices button {
+      border: 1px solid #d8e5eb;
+      background: #f5fafc;
+      color: #263e50;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+    .choices button:hover { background: #e6f5ef; border-color: #72b9a2; }
+    .feedback { min-height: 25px; margin-top: 12px; font-weight: 800; }
+    .hidden { display: none !important; }
+    
+    @media(max-width:700px) {
+      .app { gap: 7px; padding: 7px; }
+      .banner { padding: 8px 10px; }
+      .banner h1 { font-size: 15px; }
+      .banner p { font-size: 10px; }
+      .boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .card { padding: 7px; border-radius: 13px; }
+      .num { font-size: 9px; }
+      .icon { width: 34px; height: 34px; font-size: 17px; border-radius: 10px; }
+      .title { font-size: 12px; }
+      .desc, .question { font-size: 10px; }
+      .action { padding: 5px; font-size: 10px; }
+      .pill { font-size: 10px; padding: 4px 8px; }
+      .reset { font-size: 10px; padding: 6px 8px; }
+    }
+    @media(max-height:520px) {
+      .app { gap: 6px; padding: 6px 12px; }
+      .banner { padding: 5px 10px; }
+      .banner h1 { font-size: 17px; }
+      .banner p { font-size: 11px; }
+      .card { padding: 7px; }
+      .icon { width: 35px; height: 35px; }
+      .title { font-size: 13px; }
+      .desc, .question { font-size: 10px; }
+      .action { padding: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="stats">
+        <div class="pill"><i class="fa-solid fa-star" style="color:#d49a20"></i> النقاط: <b id="score">0</b></div>
+        <div class="pill"><i class="fa-solid fa-box-open" style="color:#168265"></i> <span id="progress">0 / 4</span></div>
+      </div>
+      <button class="reset" onclick="resetGame()"><i class="fa-solid fa-rotate-right"></i> إعادة اللعب</button>
+    </header>
+    <section class="banner">
+      <h1>رحلة التعرّف إلى الأنبياء العرب الأربعة</h1>
+      <p>افتحي كل صندوق، وتعرّفي إلى اسم النبي، ثم أجيبي: من هم قوم هذا النبي؟</p>
+    </section>
+    <section class="boxes" id="boxes"></section>
+  </div>
+
+  <!-- نافذة اللغز للصندوق الرابع -->
+  <div id="modalLayer" class="overlay hidden">
+    <div class="modal">
+      <div class="icon" style="margin:auto"><i class="fa-solid fa-lightbulb"></i></div>
+      <h2 id="modalTitle">لغز الصندوق الرابع</h2>
+      <p class="desc" id="modalPrompt">نبي أُرسل إلى قوم عاد، فمن هو؟</p>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="reset" onclick="closeModal()">إغلاق</button>
+    </div>
+  </div>
+
+  <script>
+    const prophets = [
+      {name:'نبي الله صالح عليه السلام', people:'قوم ثمود', options:['قوم عاد','قوم ثمود','أهل مدين'], icon:'fa-mountain-sun'},
+      {name:'نبي الله شعيب عليه السلام', people:'أهل مدين', options:['أهل مدين','قوم ثمود','قريش'], icon:'fa-scale-balanced'},
+      {name:'نبينا محمد ﷺ', people:'قريش والناس كافة', options:['قوم عاد فقط','أهل مدين فقط','قريش والناس كافة'], icon:'fa-mosque'},
+      {name:'نبي الله هود عليه السلام', people:'قوم عاد', options:['قوم ثمود','قوم عاد','أهل مدين'], icon:'fa-star-and-crescent'}
+    ];
+    let opened = {};
+    let answered = {};
+    let feedbackState = {};
+    let score = 0;
+
+    function render() {
+      const host = document.getElementById('boxes');
+      host.innerHTML = '';
+      // نُظهر الصناديق بحيث يبدأ العرض من اليمين (DOM order هنا لا يُهم لأن .boxes direction: rtl)
+      prophets.forEach((p, i) => {
+        const n = i + 1;
+        const done = !!opened[n];
+        const answer = answered[n];
+        const card = document.createElement('article');
+        card.className = 'card ' + (n === 4 ? 'special ' : '') + (done ? 'done' : '');
+        const heading = done ? p.name : 'الصندوق ' + ['الأول','الثاني','الثالث','الرابع'][i];
+        let body = '';
+        if (done) {
+          if (n === 4) {
+            body = `<div class="question">عنوان الدرس</div><div class="answer">"نبي الله هود عليه السلام ج1"</div>`;
+          } else {
+            const feedback = feedbackState[n];
+            body = `<div class="question">من هم قوم هذا النبي؟</div><div class="mini-choices">` +
+              p.options.map((opt, idx) => `<button type="button" data-prophet="${n}" data-choice="${idx}" class="${answer === opt ? (opt === p.people ? 'correct' : 'wrong') : ''}" ${answered[n] === p.people ? 'disabled' : ''}>${opt}</button>`).join('') +
+              `</div><div class="answer-feedback ${feedback ? (feedback.correct ? 'good' : 'bad') : 'empty'}" aria-live="polite">${feedback ? feedback.message : ''}</div>` +
+              (feedback && !feedback.correct ? `<button type="button" class="retry" data-retry="${n}">حاولي مرة أخرى</button>` : '') ;
+          }
+        } else {
+          body = `<p class="desc">${n === 4 ? 'حلّي اللغز لاكتشاف اسم النبي' : 'اضغطي لفتح الصندوق واكتشاف اسم النبي'}</p><button class="action">${n === 4 ? 'فكّي اللغز' : 'افتحي الصندوق'}</button>`;
+        }
+        card.innerHTML = `<div class="num"><span>${n === 4 ? 'الصندوق الرابع — اللغز' : 'النبي العربي (' + n + ')'}</span><i class="fa-solid ${done ? 'fa-lock-open' : 'fa-lock'}"></i></div>
+          <div class="icon"><i class="fa-solid ${done ? p.icon : (n === 4 ? 'fa-question' : 'fa-box-archive')}"></i></div>
+          <div class="title">${heading}</div>${body}`;
+        card.onclick = () => { if (!done) { if (n === 4) openFourth(); else openBox(n); } };
+        host.appendChild(card);
+        card.querySelectorAll('[data-prophet]').forEach(button => {
+          button.addEventListener('click', event => {
+            event.stopPropagation();
+            const prophetNumber = Number(button.dataset.prophet);
+            const selected = prophets[prophetNumber - 1].options[Number(button.dataset.choice)];
+            choosePeople(prophetNumber, selected);
+          });
+        });
+        card.querySelectorAll('[data-retry]').forEach(button => {
+          button.addEventListener('click', event => {
+            event.stopPropagation();
+            feedbackState[Number(button.dataset.retry)] = null;
+            render();
+          });
+        });
+      });
+      document.getElementById('score').textContent = score;
+      document.getElementById('progress').textContent = Object.keys(opened).length + ' / 4';
+    }
+
+    function openBox(n) {
+      if (opened[n]) return;
+      opened[n] = true;
+      score += 20;
+      render();
+    }
+
+    function choosePeople(n, choice) {
+      const p = prophets[n - 1];
+      if (answered[n] === p.people) return;
+      const wasCorrect = choice === p.people;
+      answered[n] = wasCorrect ? p.people : choice;
+      if (wasCorrect) {
+        score += 10;
+        feedbackState[n] = { correct: true, message: '✓ أحسنتِ! إجابة صحيحة.' };
+      } else {
+        feedbackState[n] = { correct: false, message: '✗ إجابة غير صحيحة. حاولي مرة أخرى.' };
+      }
+      render();
+    }
+
+    function openFourth() {
+      document.getElementById('modalTitle').textContent = 'لغز الصندوق الرابع';
+      document.getElementById('modalPrompt').textContent = 'نبي عربي كريم أرسله الله تعالى إلى قوم عاد، فمن هو؟';
+      const choices = document.getElementById('choices');
+      choices.innerHTML = '';
+      document.getElementById('feedback').textContent = '';
+      ['إبراهيم عليه السلام', 'هود عليه السلام', 'موسى عليه السلام'].forEach((text, index) => {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.onclick = () => {
+          if (index === 1) {
+            if (!opened[4]) { opened[4] = true; score += 20; }
+            document.getElementById('feedback').style.color = '#168265';
+            document.getElementById('feedback').textContent = 'إجابة صحيحة! ظهر عنوان الدرس في الصندوق الرابع.';
+            render();
+            choices.innerHTML = '';
+            const next = document.createElement('button');
+            next.textContent = 'متابعة';
+            next.onclick = closeModal;
+            choices.appendChild(next);
+          } else {
+            document.getElementById('feedback').style.color = '#b42332';
+            document.getElementById('feedback').textContent = 'حاولي مرة أخرى. تذكري أنه أُرسل إلى قوم عاد.';
+          }
+        };
+        choices.appendChild(button);
+      });
+      document.getElementById('modalLayer').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalLayer').classList.add('hidden');
+    }
+
+    function resetGame() {
+      opened = {};
+      answered = {};
+      feedbackState = {};
+      score = 0;
+      closeModal();
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
